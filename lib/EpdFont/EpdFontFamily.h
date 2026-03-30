@@ -11,7 +11,7 @@ class EpdFontFamily {
     BOLD = 1,
     ITALIC = 2,
     BOLD_ITALIC = 3,
-    // Text Decorator bitmask (bits 2-4) - Maps to CssTextDecoration
+    // Text Decoration bitmask (bits 2-4) - Maps to CssTextDecoration
     UNDERLINE = 1 << 2,
     LINETHROUGH = 1 << 3,
     OVERLINE = 1 << 4,

@@ -80,7 +80,7 @@ bool isTableStructuralTag(const char* name) {
 }
 
 // Update effective bold/italic/underline based on block style and inline style stack
-// Note: According to W3C specs, text-decorator is not inherited but "painted" across the defining element,
+// Note: According to W3C specs, text-decoration is not inherited but "painted" across the defining element,
 //   But, we follow inheritance pattern here for simplicity
 void ChapterHtmlSlimParser::updateEffectiveInlineStyle() {
   // Start with block-level styles
