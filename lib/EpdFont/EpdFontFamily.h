@@ -4,13 +4,14 @@
 class EpdFontFamily {
  public:
   enum Style : uint8_t {
+    // Font Style bitmask (bits 0-1)
     REGULAR = 0,
     BOLD = 1,
     ITALIC = 2,
     BOLD_ITALIC = 3,
-    // Text-Decorators
+    // Text Decorator bitmask (bits 2-4) - Maps to CssTextDecoration
     UNDERLINE = 1 << 2,
-    STRIKETHROUGH = 1 << 3,
+    LINETHROUGH = 1 << 3,
     OVERLINE = 1 << 4,
   };
 
