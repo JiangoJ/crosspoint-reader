@@ -17,14 +17,14 @@ void TextBlock::render(const GfxRenderer& renderer, const int fontId, const int 
     const EpdFontFamily::Style currentStyle = wordStyles[i];
     renderer.drawText(fontId, wordX, y, words[i].c_str(), true, currentStyle);
 
-    if ((currentStyle & EpdFontFamily::UNDERLINE) != 0) {
+    if (EpdFontFamily::hasDecoration(currentStyle)) {
       const std::string& w = words[i];
       const int fullWordWidth = renderer.getTextWidth(fontId, w.c_str(), currentStyle);
       // y is the top of the text line; add ascender to reach baseline, then offset 2px below
-      const int underlineY = y + renderer.getFontAscenderSize(fontId) + 2;
+      const int ascenderSize = renderer.getFontAscenderSize(fontId);
 
       int startX = wordX;
-      int underlineWidth = fullWordWidth;
+      int lineWidth = fullWordWidth;
 
       // if word starts with em-space ("\xe2\x80\x83"), account for the additional indent before drawing the line
       if (w.size() >= 3 && static_cast<uint8_t>(w[0]) == 0xE2 && static_cast<uint8_t>(w[1]) == 0x80 &&
@@ -33,10 +33,17 @@ void TextBlock::render(const GfxRenderer& renderer, const int fontId, const int 
         const int prefixWidth = renderer.getTextAdvanceX(fontId, "\xe2\x80\x83", currentStyle);
         const int visibleWidth = renderer.getTextWidth(fontId, visiblePtr, currentStyle);
         startX = wordX + prefixWidth;
-        underlineWidth = visibleWidth;
+        lineWidth = visibleWidth;
       }
-
-      renderer.drawLine(startX, underlineY, startX + underlineWidth, underlineY, true);
+      if (currentStyle & EpdFontFamily::UNDERLINE) {
+        renderer.drawLine(startX, y + ascenderSize + 2, startX + lineWidth, y + ascenderSize + 2, true);
+      }
+      if (currentStyle & EpdFontFamily::OVERLINE) {
+        renderer.drawLine(startX, y - 2, startX + lineWidth, y - 2, true);
+      }
+      if (currentStyle & EpdFontFamily::LINETHROUGH) {
+        renderer.drawLine(startX, y + ascenderSize / 2, startX + lineWidth, y + ascenderSize / 2, true);
+      }
     }
   }
 }
