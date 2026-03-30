@@ -15,8 +15,8 @@ void TextBlock::render(const GfxRenderer& renderer, const int fontId, const int 
   // y is the top of the text line; add ascender to reach baseline, then offset 2px below
   const int ascenderSize = renderer.getFontAscenderSize(fontId);
   const int yUnderline = y + ascenderSize + 2;
-  const int yOverline = y + ascenderSize / 4;
-  const int yLinethrough = y + ascenderSize * 3 / 5;
+  const int yOverline = y + ascenderSize / 5;
+  const int yLinethrough = y + ascenderSize * 4 / 5;
 
   struct DecorationLineTracker {
     int startX = -1;
