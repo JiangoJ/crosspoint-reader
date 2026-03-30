@@ -12,6 +12,37 @@ void TextBlock::render(const GfxRenderer& renderer, const int fontId, const int 
     return;
   }
 
+  // y is the top of the text line; add ascender to reach baseline, then offset 2px below
+  const int ascenderSize = renderer.getFontAscenderSize(fontId);
+  const int yUnderline = y + ascenderSize + 2;
+  const int yOverline = y + ascenderSize / 4;
+  const int yLinethrough = y + ascenderSize * 3 / 5;
+
+  struct DecorationLineTracker {
+    int startX = -1;
+    int endX = -1;
+    EpdFontFamily::Style style;
+    int yPos;
+
+    void reset() {
+      startX = -1;
+      endX = -1;
+    }
+  };
+
+  DecorationLineTracker decos[] = {
+      {.style = EpdFontFamily::Style::UNDERLINE, .yPos = yUnderline},
+      {.style = EpdFontFamily::Style::OVERLINE, .yPos = yOverline},
+      {.style = EpdFontFamily::Style::LINETHROUGH, .yPos = yLinethrough},
+  };
+
+  auto flushDeco = [&](DecorationLineTracker& deco) {
+    if (deco.startX != -1) {
+      renderer.drawLine(deco.startX, deco.yPos, deco.endX, deco.yPos, true);
+      deco.reset();
+    }
+  };
+
   for (size_t i = 0; i < words.size(); i++) {
     const int wordX = wordXpos[i] + x;
     const EpdFontFamily::Style currentStyle = wordStyles[i];
@@ -20,8 +51,6 @@ void TextBlock::render(const GfxRenderer& renderer, const int fontId, const int 
     if (EpdFontFamily::hasDecoration(currentStyle)) {
       const std::string& w = words[i];
       const int fullWordWidth = renderer.getTextWidth(fontId, w.c_str(), currentStyle);
-      // y is the top of the text line; add ascender to reach baseline, then offset 2px below
-      const int ascenderSize = renderer.getFontAscenderSize(fontId, currentStyle);
 
       int startX = wordX;
       int lineWidth = fullWordWidth;
@@ -35,19 +64,20 @@ void TextBlock::render(const GfxRenderer& renderer, const int fontId, const int 
         startX = wordX + prefixWidth;
         lineWidth = visibleWidth;
       }
-      if (currentStyle & EpdFontFamily::UNDERLINE) {
-        renderer.drawLine(startX, y + ascenderSize + 2, startX + lineWidth, y + ascenderSize + 2, true);
+
+      for (auto& deco : decos) {
+        if (currentStyle & deco.style) {
+          if (deco.startX == -1) deco.startX = startX;
+          deco.endX = startX + lineWidth;
+        } else {
+          flushDeco(deco);
+        }
       }
-      if (currentStyle & EpdFontFamily::OVERLINE) {
-        // 25% of ascender is an approx. for cap-height
-        renderer.drawLine(startX, y + ascenderSize / 4, startX + lineWidth, y + ascenderSize / 4, true);
-      }
-      if (currentStyle & EpdFontFamily::LINETHROUGH) {
-        // 60% of ascender is an approx. for middle of glyph
-        renderer.drawLine(startX, y + (ascenderSize * 3 / 5), startX + lineWidth, y + (ascenderSize * 3 / 5), true);
-      }
+    } else {
+      for (auto& deco : decos) flushDeco(deco);
     }
   }
+  for (auto& deco : decos) flushDeco(deco);
 }
 
 bool TextBlock::serialize(FsFile& file) const {
