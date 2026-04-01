@@ -1,10 +1,10 @@
 #pragma once
 #include "EpdFont.h"
 
-static constexpr uint8_t DECORATION_MASK = 0b00011100;
-
 class EpdFontFamily {
  public:
+  static constexpr uint8_t DECORATION_MASK_SHIFT = 2;
+  static constexpr uint8_t DECORATION_MASK = 0b111 << DECORATION_MASK_SHIFT;
   enum Style : uint8_t {
     // Font Style bitmask (bits 0-1)
     REGULAR = 0,
@@ -26,7 +26,7 @@ class EpdFontFamily {
   const EpdGlyph* getGlyph(uint32_t cp, Style style = REGULAR) const;
   int8_t getKerning(uint32_t leftCp, uint32_t rightCp, Style style = REGULAR) const;
   uint32_t applyLigatures(uint32_t cp, const char*& text, Style style = REGULAR) const;
-  static constexpr bool hasDecoration(const Style style) { return static_cast<Style>(DECORATION_MASK & style); }
+  static constexpr bool hasDecoration(const Style style) { return DECORATION_MASK & style; }
 
  private:
   const EpdFont* regular;

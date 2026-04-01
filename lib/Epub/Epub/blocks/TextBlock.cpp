@@ -38,7 +38,7 @@ void TextBlock::render(const GfxRenderer& renderer, const int fontId, const int 
 
   auto flushDeco = [&](DecorationLineTracker& deco) {
     if (deco.startX != -1) {
-      renderer.drawLine(deco.startX, deco.yPos, deco.endX, deco.yPos, true);
+      renderer.drawLine(deco.startX, deco.yPos, deco.endX, deco.yPos, 2, true);
       deco.reset();
     }
   };
